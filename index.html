@@ -561,7 +561,7 @@
             <form id="albumSelectForm">
                 <div class="form-group" id="photoNameGroup">
                     <label for="photoName">Nombre para las fotos</label>
-                    <input type="text" id="photoName" placeholder="Ej: Cumpleaños, Gatos, etc.">
+                    <input type="text" id="photoName" placeholder="Ej: Cumpleaños, Gatos, etc. (Opcional)">
                 </div>
                 <div class="photo-preview" id="photoPreview"></div>
                 <div class="form-group">
@@ -899,9 +899,9 @@
             const resultsContainer = document.getElementById('searchResultsGrid');
             resultsContainer.innerHTML = '';
             
-            if (query.length < 2) return;
+            const normalizedQuery = query.toLowerCase().trim();
+            if (normalizedQuery.length < 2) return;
 
-            const normalizedQuery = query.toLowerCase();
             const foundPhotos = [];
 
             Object.values(categories).forEach(category => {
@@ -964,9 +964,14 @@
         }
 
         function navigatePhoto(direction) {
+            if (!currentPhotosArray || currentPhotosArray.length === 0) return;
+            
             currentPhotoIndex += direction;
-            if (currentPhotoIndex < 0) currentPhotoIndex = currentPhotosArray.length - 1;
-            else if (currentPhotoIndex >= currentPhotosArray.length) currentPhotoIndex = 0;
+            if (currentPhotoIndex < 0) {
+                currentPhotoIndex = currentPhotosArray.length - 1;
+            } else if (currentPhotoIndex >= currentPhotosArray.length) {
+                currentPhotoIndex = 0;
+            }
             document.getElementById('viewerImage').src = currentPhotosArray[currentPhotoIndex].src;
         }
 
@@ -1009,8 +1014,19 @@
         function deletePhoto(categoryName, albumName, photoIndex) {
             if (confirm('¿Estás seguro de que quieres eliminar esta foto?')) {
                 categories[categoryName][albumName].photos.splice(photoIndex, 1);
+                
+                if (categories[categoryName][albumName].photos.length === 0) {
+                    delete categories[categoryName][albumName];
+                    if (Object.keys(categories[categoryName]).length === 0) {
+                        delete categories[categoryName];
+                    }
+                    closeAlbumView();
+                } else {
+                    viewAlbum(categoryName, albumName);
+                }
+                
                 localStorage.setItem('photoCategories', JSON.stringify(categories));
-                viewAlbum(categoryName, albumName);
+                displayCategories();
             }
             closeAllDropdowns();
         }
@@ -1025,7 +1041,7 @@
             currentPhotoToMove = { categoryName: '', albumName: '', photoIndex: -1 };
         }
 
-        // --- Event Listeners ---
+        // --- Event listeners ---
         document.addEventListener('DOMContentLoaded', () => {
             if (Object.keys(categories).length === 0) {
                 categories = initializeCategories();
@@ -1064,32 +1080,22 @@
                 const categoryName = document.getElementById('categorySelect').value;
                 const albumName = document.getElementById('albumSelect').value;
                 const newAlbumName = document.getElementById('newAlbumName').value.trim();
-                const photoName = document.getElementById('photoName').value.trim() || `Foto ${new Date().toLocaleString()}`;
+                const photoNameInput = document.getElementById('photoName').value.trim();
+                const photoName = photoNameInput || `Foto ${new Date().toLocaleString()}`;
 
                 let photosToSave = selectedPhotos.map(src => ({ src, name: photoName }));
 
                 let finalCategoryName = categoryName;
-                if (categoryName === 'new') {
-                    if (!newAlbumName) {
-                         alert('Por favor, ingresa un nombre para el álbum.');
-                         return;
-                    }
-                    finalCategoryName = newAlbumName.charAt(0).toUpperCase();
+
+                if (albumName === 'new' && !newAlbumName) {
+                     alert('Por favor, ingresa un nombre para el nuevo álbum.');
+                     return;
                 }
 
                 const finalAlbumName = (albumName === 'new') ? newAlbumName : albumName;
 
-                if (!finalAlbumName) {
-                    alert('Por favor, ingresa un nombre para el álbum.');
-                    return;
-                }
-
                 if (!categories[finalCategoryName]) {
                     categories[finalCategoryName] = {};
-                }
-                if (albumName === 'new' && categories[finalCategoryName][finalAlbumName]) {
-                     alert(`El álbum "${finalAlbumName}" ya existe en la categoría "${finalCategoryName}".`);
-                     return;
                 }
                 
                 if (!categories[finalCategoryName][finalAlbumName]) {
@@ -1132,7 +1138,10 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const albumData = categories[currentEditingAlbum.categoryName][currentEditingAlbum.albumName];
-                        if (albumData.photos[0] && albumData.photos[0].src !== e.target.result) {
+                        // Reemplazar la primera foto si ya existe, o añadirla si no
+                        if (albumData.photos[0]) {
+                            albumData.photos[0] = { src: e.target.result, name: "Portada" };
+                        } else {
                             albumData.photos.unshift({ src: e.target.result, name: "Portada" });
                         }
                         localStorage.setItem('photoCategories', JSON.stringify(categories));
@@ -1157,6 +1166,7 @@
 
                 if (categories[category]) {
                     Object.keys(categories[category]).forEach(albumName => {
+                        // Evitar mover la foto al mismo álbum
                         if (albumName !== currentPhotoToMove.albumName || category !== currentPhotoToMove.categoryName) {
                             albumSelect.innerHTML += `<option value="${albumName}">${albumName}</option>`;
                         }
@@ -1206,7 +1216,6 @@
                 localStorage.setItem('photoCategories', JSON.stringify(categories));
                 closeMovePhotoModal();
                 closeAlbumView();
-                displayCategories();
                 alert(`¡Foto movida a "${category}" > "${targetAlbumName}"!`);
             });
 
