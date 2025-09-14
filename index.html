@@ -855,4 +855,382 @@
                 const items = e.clipboardData.items;
                 const files = [];
                 
-                for (let i = 0; i < items.length;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        const file = items[i].getAsFile();
+                        files.push(file);
+                    }
+                }
+                
+                if (files.length > 0) {
+                    handleFiles(files);
+                }
+            });
+        }
+
+        // Manejar selección de archivos
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        }
+
+        // Procesar archivos seleccionados
+        function handleFiles(files) {
+            selectedPhotos = [];
+            let filesProcessed = 0;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Guardar foto en calidad original (sin compresión)
+                    selectedPhotos.push(e.target.result);
+                    filesProcessed++;
+                    
+                    if (filesProcessed === files.length) {
+                        showAlbumSelectModal();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Mostrar modal para seleccionar álbum
+        function showAlbumSelectModal() {
+            const modal = document.getElementById('albumSelectModal');
+            const preview = document.getElementById('photoPreview');
+            const albumSelect = document.getElementById('albumSelect');
+            
+            // Mostrar preview de fotos
+            preview.innerHTML = '';
+            selectedPhotos.forEach((photo, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.innerHTML = `
+                    <img src="${photo}" alt="Foto ${index + 1}">
+                    <button class="remove-photo" onclick="removePhoto(${index})">×</button>
+                `;
+                preview.appendChild(previewItem);
+            });
+
+            // Actualizar opciones de álbumes
+            albumSelect.innerHTML = '<option value="">Selecciona un álbum...</option>';
+            albumSelect.innerHTML += '<option value="new">➕ Crear nuevo álbum</option>';
+            
+            Object.keys(albums).forEach(albumName => {
+                albumSelect.innerHTML += `<option value="${albumName}">${albumName}</option>`;
+            });
+
+            modal.style.display = 'block';
+        }
+
+        // Remover foto del preview
+        function removePhoto(index) {
+            selectedPhotos.splice(index, 1);
+            if (selectedPhotos.length === 0) {
+                closeAlbumSelectModal();
+            } else {
+                showAlbumSelectModal(); // Actualizar preview
+            }
+        }
+
+        // Cerrar modal de selección de álbum
+        function closeAlbumSelectModal() {
+            document.getElementById('albumSelectModal').style.display = 'none';
+            document.getElementById('photoInput').value = '';
+            selectedPhotos = [];
+        }
+
+        // Filtrar álbumes por letra
+        function filterAlbums(letter) {
+            currentFilter = letter;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.letter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((letter === 'all' && btn.textContent === 'TODO') || 
+                    btn.textContent === letter) {
+                    btn.classList.add('active');
+                }
+            });
+
+            displayAlbums();
+        }
+
+        // Mostrar álbumes
+        function displayAlbums() {
+            const grid = document.getElementById('albumsGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
+
+            const filteredAlbums = Object.entries(albums).filter(([name]) => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'FAMOSAS') return name.toLowerCase().includes('famosa');
+                return name.charAt(0).toUpperCase() === currentFilter;
+            });
+
+            if (filteredAlbums.length === 0) {
+                emptyState.style.display = 'block';
+                grid.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                grid.style.display = 'grid';
+
+                filteredAlbums.forEach(([name, album]) => {
+                    const card = createAlbumCard(name, album);
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        // Crear tarjeta de álbum
+        function createAlbumCard(name, album) {
+            const card = document.createElement('div');
+            card.className = 'album-card';
+            card.onclick = () => viewAlbum(name, album);
+
+            const cover = album.photos.length > 0 ? 
+                `<img src="${album.photos[0]}" alt="Portada" class="album-cover">` :
+                `<div class="album-cover">📷</div>`;
+
+            card.innerHTML = `
+                ${cover}
+                <div class="album-info">
+                    <h3>${name}</h3>
+                    <p>${album.photos.length} fotos</p>
+                    <p>Creado: ${new Date(album.createdAt).toLocaleDateString()}</p>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Ver álbum
+        function viewAlbum(name, album) {
+            const modal = document.getElementById('viewModal');
+            const title = document.getElementById('albumTitle');
+            const photoGrid = document.getElementById('photoGrid');
+
+            title.textContent = name;
+            photoGrid.innerHTML = '';
+
+            album.photos.forEach((photo, index) => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item';
+                photoItem.innerHTML = `<img src="${photo}" alt="Foto del álbum">`;
+                photoItem.onclick = () => openImageViewer(photo);
+                photoGrid.appendChild(photoItem);
+            });
+
+            modal.style.display = 'block';
+        }
+
+        // Ver todas las fotos
+        function viewAllPhotos() {
+            const mainView = document.getElementById('mainView');
+            const allPhotosView = document.getElementById('allPhotosView');
+            const allPhotosGrid = document.getElementById('allPhotosGrid');
+
+            mainView.style.display = 'none';
+            allPhotosView.style.display = 'block';
+
+            allPhotosGrid.innerHTML = '';
+
+            Object.entries(albums).forEach(([albumName, album]) => {
+                album.photos.forEach(photo => {
+                    const photoContainer = document.createElement('div');
+                    photoContainer.className = 'photo-with-album';
+                    photoContainer.innerHTML = `
+                        <img src="${photo}" alt="Foto de ${albumName}">
+                        <div class="album-label">${albumName}</div>
+                    `;
+                    photoContainer.onclick = () => openImageViewer(photo);
+                    allPhotosGrid.appendChild(photoContainer);
+                });
+            });
+        }
+
+        // Volver a vista de álbumes
+        function backToAlbums() {
+            const mainView = document.getElementById('mainView');
+            const allPhotosView = document.getElementById('allPhotosView');
+
+            mainView.style.display = 'block';
+            allPhotosView.style.display = 'none';
+        }
+
+        // Cerrar modal de ver álbum
+        function closeViewModal() {
+            document.getElementById('viewModal').style.display = 'none';
+        }
+
+        // Abrir visor de imágenes
+        function openImageViewer(imageSrc) {
+            const viewer = document.getElementById('imageViewer');
+            const viewerImage = document.getElementById('viewerImage');
+            
+            viewerImage.src = imageSrc;
+            viewer.style.display = 'block';
+            resetZoom();
+            
+            // Configurar eventos de arrastre para zoom
+            setupImageDragging();
+        }
+
+        // Cerrar visor de imágenes
+        function closeImageViewer() {
+            document.getElementById('imageViewer').style.display = 'none';
+            currentZoom = 1;
+            currentX = 0;
+            currentY = 0;
+        }
+
+        // Configurar arrastre de imagen
+        function setupImageDragging() {
+            const viewerImage = document.getElementById('viewerImage');
+            
+            viewerImage.onmousedown = startDrag;
+            viewerImage.onmousemove = drag;
+            viewerImage.onmouseup = endDrag;
+            viewerImage.onmouseleave = endDrag;
+            
+            // Touch events para móvil
+            viewerImage.ontouchstart = (e) => startDrag(e.touches[0]);
+            viewerImage.ontouchmove = (e) => {
+                e.preventDefault();
+                drag(e.touches[0]);
+            };
+            viewerImage.ontouchend = endDrag;
+        }
+
+        function startDrag(e) {
+            if (currentZoom <= 1) return;
+            isDragging = true;
+            startX = e.clientX - currentX;
+            startY = e.clientY - currentY;
+        }
+
+        function drag(e) {
+            if (!isDragging || currentZoom <= 1) return;
+            currentX = e.clientX - startX;
+            currentY = e.clientY - startY;
+            updateImageTransform();
+        }
+
+        function endDrag() {
+            isDragging = false;
+        }
+
+        // Funciones de zoom
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.5, 5);
+            updateImageTransform();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.5, 1);
+            if (currentZoom === 1) {
+                currentX = 0;
+                currentY = 0;
+            }
+            updateImageTransform();
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            currentX = 0;
+            currentY = 0;
+            updateImageTransform();
+        }
+
+        function updateImageTransform() {
+            const viewerImage = document.getElementById('viewerImage');
+            viewerImage.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentZoom})`;
+        }
+
+        // Manejar formulario de selección de álbum
+        document.getElementById('albumSelectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const albumSelect = document.getElementById('albumSelect').value;
+            const newAlbumName = document.getElementById('newAlbumName').value.trim();
+            
+            if (!albumSelect) return;
+            
+            let targetAlbum;
+            
+            if (albumSelect === 'new') {
+                if (!newAlbumName) {
+                    alert('Por favor, ingresa el nombre del nuevo álbum');
+                    return;
+                }
+                targetAlbum = newAlbumName;
+                
+                // Crear nuevo álbum si no existe
+                if (!albums[targetAlbum]) {
+                    albums[targetAlbum] = {
+                        photos: [],
+                        createdAt: new Date().toISOString()
+                    };
+                }
+            } else {
+                targetAlbum = albumSelect;
+            }
+            
+            // Agregar fotos al álbum
+            albums[targetAlbum].photos.push(...selectedPhotos);
+            
+            // Guardar en localStorage
+            localStorage.setItem('photoAlbums', JSON.stringify(albums));
+            
+            // Cerrar modal y actualizar vista
+            closeAlbumSelectModal();
+            displayAlbums();
+            
+            // Mostrar mensaje de éxito
+            alert(`¡${selectedPhotos.length} foto(s) agregada(s) al álbum "${targetAlbum}"!`);
+        });
+
+        // Mostrar/ocultar campo de nuevo álbum
+        document.getElementById('albumSelect').addEventListener('change', function() {
+            const newAlbumGroup = document.getElementById('newAlbumGroup');
+            if (this.value === 'new') {
+                newAlbumGroup.style.display = 'block';
+                document.getElementById('newAlbumName').focus();
+            } else {
+                newAlbumGroup.style.display = 'none';
+            }
+        });
+
+        // Cerrar modales al hacer click fuera
+        window.addEventListener('click', function(e) {
+            const albumSelectModal = document.getElementById('albumSelectModal');
+            const viewModal = document.getElementById('viewModal');
+            const imageViewer = document.getElementById('imageViewer');
+            
+            if (e.target === albumSelectModal) {
+                closeAlbumSelectModal();
+            }
+            if (e.target === viewModal) {
+                closeViewModal();
+            }
+            if (e.target === imageViewer) {
+                closeImageViewer();
+            }
+        });
+
+        // Inicializar app
+        document.addEventListener('DOMContentLoaded', function() {
+            generateAlphabet();
+            setupUploadArea();
+            displayAlbums();
+            
+            console.log('📱 App de Álbumes iniciada correctamente');
+            console.log('✅ Funciona completamente offline');
+            console.log('✅ Las fotos se guardan en calidad original');
+            console.log('✅ Zoom y arrastre disponibles');
+        });
+    </script>
+</body>
+</html>
