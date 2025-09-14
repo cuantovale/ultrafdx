@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Álbumes</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWlzIMOBbGJ1bWVzIiwic2hvcnRfbmFtZSI6IkFsYnVtcyIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMTExODI3IiwidGhlbWVfY29sb3IiOiIjMzMzIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1qUWlJR2hsYVdkb2REMGlNalFpSUhacFpYZENiM2c5SWpBZ01DQXlOQ0F5TkNJK1BISmxZM1FnZUQwaU1pSWdlVDBpTWlJZ2QybGtkR2c5SWpJd0lpQm9aV2xuYUhROUlqSXdJaUJ5ZUQwaU1pSWdabWxzYkQwaUkwWkdSaUlpTHo0OEwzTjJaejQ9Iiwic2l6ZXMiOiIyNHgyNCIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWlzIMOBbGJ1bWVzIiwic2hvcnRfbmFtZSI6IkFsYnVtcyIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMTExODI3IiwidGhlbWVfY29sb3IiOiIjMzMzIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1qUWlJR2hsYVdkb2REMGlNalFpSUhacFpYZENiM2c5SWpBZ01DQXlOQ0F5TkNJK1BISmxZM3FnZUQwaU1pSWdlVDBpTWlJZ2QybGtkR2c5SWpJd0lpQm9aV2xuYUhROUlqSXdJaUJ5ZUQwaU1pSWdabWxzYkQwaUkwWkdSaUlpTHo0OEwzTjJaejQ9Iiwic2l6ZXMiOiIyNHgyNCIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
     <meta name="theme-color" content="#333">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -596,12 +596,20 @@
     <script>
         let categories = JSON.parse(localStorage.getItem('photoCategories')) || {};
         let selectedPhotos = [];
-        let currentEditingAlbum = null; // { categoryName: '', albumName: '' }
+        let currentEditingAlbum = null;
         let currentPhotoToMove = { categoryName: '', albumName: '', photoIndex: -1 };
         let currentPhotosArray = [];
         let currentPhotoIndex = 0;
 
-        // Generar y mostrar categorías
+        // --- Funciones de inicialización y renderizado ---
+        function initializeCategories() {
+            const defaultCategories = {};
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            alphabet.forEach(letter => defaultCategories[letter] = {});
+            defaultCategories['Famosas'] = {};
+            return defaultCategories;
+        }
+
         function displayCategories() {
             const categoryList = document.getElementById('categoryList');
             categoryList.innerHTML = '';
@@ -622,10 +630,9 @@
                     categoryItem.className = 'category-item';
 
                     const albumsInThisCategory = Object.entries(categories[categoryName]);
-                    const albumCount = albumsInThisCategory.length;
-
+                    
                     categoryItem.innerHTML = `
-                        <div class="category-header" onclick="toggleCategory('${categoryName}')">
+                        <div class="category-header" onclick="toggleCategory(event, '${categoryName}')">
                             <h3>
                                 <span class="category-icon">#</span>
                                 ${categoryName}
@@ -649,8 +656,8 @@
             }
         }
 
-        function toggleCategory(categoryName) {
-            const categoryItem = document.querySelector(`.category-item:has(#albumGrid-${categoryName})`);
+        function toggleCategory(event, categoryName) {
+            const categoryItem = event.currentTarget.closest('.category-item');
             const gridContainer = document.getElementById(`albumGrid-${categoryName}`);
 
             if (gridContainer.style.display === 'block') {
@@ -759,7 +766,6 @@
 
             categorySelect.innerHTML = '<option value="">Selecciona una categoría...</option>';
             Object.keys(categories).sort().forEach(cat => categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`);
-            categorySelect.innerHTML += '<option value="Famosas">Famosas</option>';
             categorySelect.innerHTML += '<option value="new">➕ Crear nueva categoría (primera letra)</option>';
 
             categorySelect.value = '';
@@ -901,7 +907,6 @@
             
             moveToCategorySelect.innerHTML = '<option value="">Selecciona una categoría...</option>';
             Object.keys(categories).sort().forEach(cat => moveToCategorySelect.innerHTML += `<option value="${cat}">${cat}</option>`);
-            moveToCategorySelect.innerHTML += '<option value="Famosas">Famosas</option>';
             
             document.getElementById('moveToAlbum').innerHTML = '<option value="">Selecciona un álbum...</option><option value="new">➕ Crear nuevo álbum</option>';
             document.getElementById('moveNewAlbumGroup').style.display = 'none';
@@ -931,6 +936,11 @@
 
         // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Verificar si hay datos en localStorage, si no, inicializar categorías
+            if (Object.keys(categories).length === 0) {
+                categories = initializeCategories();
+            }
+            
             setupUploadArea();
             displayCategories();
 
@@ -969,7 +979,15 @@
                 const albumName = document.getElementById('albumSelect').value;
                 const newAlbumName = document.getElementById('newAlbumName').value.trim();
 
-                const finalCategoryName = (categoryName === 'new') ? newAlbumName.charAt(0).toUpperCase() : categoryName;
+                let finalCategoryName = categoryName;
+                if (categoryName === 'new') {
+                    if (!newAlbumName) {
+                         alert('Por favor, ingresa un nombre para el álbum.');
+                         return;
+                    }
+                    finalCategoryName = newAlbumName.charAt(0).toUpperCase();
+                }
+
                 const finalAlbumName = (albumName === 'new') ? newAlbumName : albumName;
 
                 if (!finalAlbumName) {
@@ -980,13 +998,12 @@
                 if (!categories[finalCategoryName]) {
                     categories[finalCategoryName] = {};
                 }
-                if (!categories[finalCategoryName][finalAlbumName]) {
-                    categories[finalCategoryName][finalAlbumName] = { photos: [], createdAt: new Date().toISOString() };
-                } else if (albumName === 'new') {
+                if (categories[finalCategoryName][finalAlbumName]) {
                      alert(`El álbum "${finalAlbumName}" ya existe en la categoría "${finalCategoryName}".`);
                      return;
                 }
                 
+                categories[finalCategoryName][finalAlbumName] = { photos: [], createdAt: new Date().toISOString() };
                 categories[finalCategoryName][finalAlbumName].photos.push(...selectedPhotos);
                 localStorage.setItem('photoCategories', JSON.stringify(categories));
                 closeAlbumSelectModal();
@@ -1000,8 +1017,9 @@
                 const coverFile = document.getElementById('editAlbumCover').files[0];
                 const { categoryName, albumName } = currentEditingAlbum;
                 
-                if (newAlbumName !== albumName) {
-                    const newCategoryName = newAlbumName.charAt(0).toUpperCase();
+                const newCategoryName = newAlbumName.charAt(0).toUpperCase();
+                
+                if (newAlbumName !== albumName || newCategoryName !== categoryName) {
                     if (!categories[newCategoryName]) categories[newCategoryName] = {};
                     if (categories[newCategoryName][newAlbumName]) {
                         alert('Ya existe un álbum con ese nombre en esa categoría.');
@@ -1047,7 +1065,7 @@
 
                 if (categories[category]) {
                     Object.keys(categories[category]).forEach(albumName => {
-                        if (albumName !== currentPhotoToMove.albumName) {
+                        if (albumName !== currentPhotoToMove.albumName || category !== currentPhotoToMove.categoryName) {
                             albumSelect.innerHTML += `<option value="${albumName}">${albumName}</option>`;
                         }
                     });
@@ -1075,6 +1093,10 @@
                 }
 
                 if (!categories[category]) categories[category] = {};
+                if (album === 'new' && categories[category][targetAlbumName]) {
+                    alert(`El álbum "${targetAlbumName}" ya existe en la categoría "${category}".`);
+                    return;
+                }
                 if (!categories[category][targetAlbumName]) {
                     categories[category][targetAlbumName] = { photos: [], createdAt: new Date().toISOString() };
                 }
