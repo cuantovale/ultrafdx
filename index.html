@@ -97,7 +97,15 @@
             display: none;
         }
         
-        .view-all-btn {
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .action-btn {
             background: #3498db;
             color: white;
             padding: 12px 25px;
@@ -109,14 +117,20 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 25px;
             text-decoration: none;
         }
 
-        .view-all-btn:hover {
+        .action-btn.secondary {
+            background: #7f8c8d;
+        }
+
+        .action-btn:hover {
             background: #2980b9;
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .action-btn.secondary:hover {
+            background: #6c7a7b;
         }
         
         /* Lista de categorías */
@@ -234,7 +248,7 @@
             font-size: 1rem;
         }
 
-        /* Estilos de modales y vistas existentes (sin cambios) */
+        /* Estilos de modales y vistas existentes */
         .modal {
             display: none;
             position: fixed;
@@ -388,7 +402,7 @@
         }
 
         /* Visor y vistas de fotos */
-        .album-view, .all-photos-view, .image-viewer {
+        .album-view, .all-photos-view, .image-viewer, .search-results-view {
             display: none;
             position: fixed;
             top: 0;
@@ -400,7 +414,7 @@
             overflow-y: auto;
         }
 
-        .album-view-photos, .all-photos-grid, .image-viewer-content {
+        .album-view-photos, .all-photos-grid, .image-viewer-content, .search-results-grid {
             padding: 20px;
             max-width: 500px;
             margin: 0 auto;
@@ -450,6 +464,20 @@
             background: rgba(231, 76, 60, 0.2);
         }
 
+        /* Input de búsqueda */
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(44, 62, 80, 0.5);
+            color: white;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -467,10 +495,15 @@
                 </div>
                 <input type="file" id="photoInput" class="upload-input" multiple accept="image/*">
             </div>
-
-            <button class="view-all-btn" onclick="viewAllPhotos()">
-                🖼️ Ver Todas las Fotos
-            </button>
+            
+            <div class="button-group">
+                <button class="action-btn" onclick="viewAllPhotos()">
+                    🖼️ Ver Todas las Fotos
+                </button>
+                <button class="action-btn secondary" onclick="openSearchModal()">
+                    🔎 Buscar Fotos
+                </button>
+            </div>
         </div>
 
         <div class="main-view" id="mainView">
@@ -501,15 +534,16 @@
 
     <div class="modal" id="albumSelectModal">
         <div class="modal-content">
-            <h2>Seleccionar Álbum</h2>
-            <div class="photo-preview" id="photoPreview"></div>
+            <h2>Guardar Fotos</h2>
             <form id="albumSelectForm">
+                <div class="form-group" id="photoNameGroup">
+                    <label for="photoName">Nombre de la foto</label>
+                    <input type="text" id="photoName" placeholder="Ej: Cumpleaños, Gatos, etc." required>
+                </div>
                 <div class="form-group">
                     <label for="categorySelect">Categoría</label>
                     <select id="categorySelect" required>
                         <option value="">Selecciona una categoría...</option>
-                        <option value="Famosas">Famosas</option>
-                        <option value="new">➕ Crear nueva categoría (primera letra)</option>
                     </select>
                 </div>
                 <div class="form-group" id="albumSelectGroup" style="display: none;">
@@ -525,7 +559,7 @@
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary" onclick="closeAlbumSelectModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Fotos</button>
+                    <button type="submit" class="btn btn-primary">Guardar Foto</button>
                 </div>
             </form>
         </div>
@@ -577,6 +611,20 @@
                     <button type="submit" class="btn btn-primary">Mover Foto</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div class="modal" id="searchModal">
+        <div class="modal-content">
+            <h2>🔎 Buscar Fotos</h2>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar por nombre...">
+            </div>
+            <div class="search-results-grid" id="searchResultsGrid">
+                </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeSearchModal()">Cerrar</button>
+            </div>
         </div>
     </div>
     
@@ -679,7 +727,7 @@
             };
             
             const cover = albumData.photos.length > 0 ? 
-                `<img src="${albumData.photos[0]}" alt="Portada" class="album-cover">` :
+                `<img src="${albumData.photos[0].src}" alt="Portada" class="album-cover">` :
                 `<div class="album-cover">📷</div>`;
 
             card.innerHTML = `
@@ -751,28 +799,18 @@
 
         function showAlbumSelectModal() {
             const modal = document.getElementById('albumSelectModal');
-            const preview = document.getElementById('photoPreview');
             const categorySelect = document.getElementById('categorySelect');
-            const albumSelect = document.getElementById('albumSelect');
-            const albumSelectGroup = document.getElementById('albumSelectGroup');
-            const newAlbumGroup = document.getElementById('newAlbumGroup');
             
-            preview.innerHTML = selectedPhotos.map((photo, index) => `
-                <div class="preview-item">
-                    <img src="${photo}" alt="Foto ${index + 1}">
-                    <button class="remove-photo" onclick="removePhoto(${index})">×</button>
-                </div>
-            `).join('');
-
             categorySelect.innerHTML = '<option value="">Selecciona una categoría...</option>';
             Object.keys(categories).sort().forEach(cat => categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`);
-            categorySelect.innerHTML += '<option value="new">➕ Crear nueva categoría (primera letra)</option>';
-
-            categorySelect.value = '';
-            albumSelect.innerHTML = '<option value="">Selecciona un álbum...</option>';
-            albumSelectGroup.style.display = 'none';
-            newAlbumGroup.style.display = 'none';
             
+            // Si hay solo una foto, mostrar el campo de nombre
+            if (selectedPhotos.length === 1) {
+                document.getElementById('photoNameGroup').style.display = 'block';
+            } else {
+                document.getElementById('photoNameGroup').style.display = 'none';
+            }
+
             modal.style.display = 'block';
         }
 
@@ -796,7 +834,7 @@
             const photosContainer = document.getElementById('albumViewPhotos');
             photosContainer.innerHTML = currentPhotosArray.map((photo, index) => `
                 <div class="album-photo">
-                    <img src="${photo}" alt="Foto ${index + 1}" onclick="openImageViewer('${photo}', ${index})">
+                    <img src="${photo.src}" alt="${photo.name}" onclick="openImageViewer('${photo.src}', ${index})">
                     <div class="photo-menu">
                         <button class="photo-menu-btn" onclick="togglePhotoMenu(event, ${index})">⋮</button>
                         <div class="photo-menu-dropdown" id="photomenu-${index}">
@@ -830,6 +868,48 @@
             document.getElementById('allPhotosView').style.display = 'none';
             document.getElementById('mainView').style.display = 'block';
         }
+        
+        function openSearchModal() {
+            document.getElementById('searchModal').style.display = 'block';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResultsGrid').innerHTML = '';
+        }
+
+        function closeSearchModal() {
+            document.getElementById('searchModal').style.display = 'none';
+        }
+
+        function searchPhotos(query) {
+            const resultsContainer = document.getElementById('searchResultsGrid');
+            resultsContainer.innerHTML = '';
+            
+            if (query.length < 2) return;
+
+            const normalizedQuery = query.toLowerCase();
+            const foundPhotos = [];
+
+            Object.values(categories).forEach(category => {
+                Object.values(category).forEach(album => {
+                    album.photos.forEach(photo => {
+                        if (photo.name.toLowerCase().includes(normalizedQuery)) {
+                            foundPhotos.push(photo);
+                        }
+                    });
+                });
+            });
+
+            if (foundPhotos.length > 0) {
+                foundPhotos.forEach((photo, index) => {
+                    const photoDiv = document.createElement('div');
+                    photoDiv.className = 'photo-with-album';
+                    photoDiv.innerHTML = `<img src="${photo.src}" alt="${photo.name}">`;
+                    photoDiv.onclick = () => openImageViewer(photo.src, index, foundPhotos);
+                    resultsContainer.appendChild(photoDiv);
+                });
+            } else {
+                resultsContainer.innerHTML = `<p style="text-align:center; color:#bdc3c7;">No se encontraron resultados para "${query}".</p>`;
+            }
+        }
 
         function viewAllPhotos() {
             document.getElementById('mainView').style.display = 'none';
@@ -845,25 +925,20 @@
             });
             currentPhotosArray = allPhotos;
 
-            let photoIndex = 0;
-            Object.entries(categories).forEach(([categoryName, category]) => {
-                Object.entries(category).forEach(([albumName, albumData]) => {
-                    albumData.photos.forEach(photo => {
-                        const photoDiv = document.createElement('div');
-                        photoDiv.className = 'photo-with-album';
-                        photoDiv.innerHTML = `<img src="${photo}" alt="Foto de ${albumName}"><div class="album-label">${albumName}</div>`;
-                        photoDiv.onclick = () => openImageViewer(photo, photoIndex);
-                        allPhotosGrid.appendChild(photoDiv);
-                        photoIndex++;
-                    });
-                });
+            allPhotos.forEach((photo, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'photo-with-album';
+                photoDiv.innerHTML = `<img src="${photo.src}" alt="${photo.name}">`;
+                photoDiv.onclick = () => openImageViewer(photo.src, index, allPhotos);
+                allPhotosGrid.appendChild(photoDiv);
             });
         }
         
-        function openImageViewer(imageSrc, photoIndex) {
+        function openImageViewer(imageSrc, photoIndex, photoList = currentPhotosArray) {
             document.getElementById('imageViewer').style.display = 'block';
             document.getElementById('viewerImage').src = imageSrc;
             currentPhotoIndex = photoIndex;
+            currentPhotosArray = photoList;
             document.body.style.overflow = 'hidden';
         }
 
@@ -876,7 +951,7 @@
             currentPhotoIndex += direction;
             if (currentPhotoIndex < 0) currentPhotoIndex = currentPhotosArray.length - 1;
             else if (currentPhotoIndex >= currentPhotosArray.length) currentPhotoIndex = 0;
-            document.getElementById('viewerImage').src = currentPhotosArray[currentPhotoIndex];
+            document.getElementById('viewerImage').src = currentPhotosArray[currentPhotoIndex].src;
         }
 
         // --- Lógica de Edición, Mover y Eliminar ---
@@ -936,7 +1011,6 @@
 
         // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Verificar si hay datos en localStorage, si no, inicializar categorías
             if (Object.keys(categories).length === 0) {
                 categories = initializeCategories();
             }
@@ -952,18 +1026,14 @@
                 
                 newAlbumGroup.style.display = 'none';
                 
-                if (categorySelect && categorySelect !== 'new') {
+                if (categorySelect) {
                     albumSelectGroup.style.display = 'block';
                     albumSelect.innerHTML = '<option value="">Selecciona un álbum...</option><option value="new">➕ Crear nuevo álbum</option>';
-                    if (categories[categorySelect]) {
+                    if (categories[categorySelect] && categorySelect !== 'new') {
                         Object.keys(categories[categorySelect]).forEach(albumName => {
                             albumSelect.innerHTML += `<option value="${albumName}">${albumName}</option>`;
                         });
                     }
-                } else if (categorySelect === 'new') {
-                    albumSelectGroup.style.display = 'block';
-                    albumSelect.innerHTML = '<option value="new">➕ Crear nuevo álbum</option>';
-                    newAlbumGroup.style.display = 'block';
                 } else {
                     albumSelectGroup.style.display = 'none';
                 }
@@ -978,6 +1048,9 @@
                 const categoryName = document.getElementById('categorySelect').value;
                 const albumName = document.getElementById('albumSelect').value;
                 const newAlbumName = document.getElementById('newAlbumName').value.trim();
+                const photoName = document.getElementById('photoName').value.trim() || `Foto ${Date.now()}`;
+
+                let photosToSave = selectedPhotos.map(src => ({ src, name: photoName }));
 
                 let finalCategoryName = categoryName;
                 if (categoryName === 'new') {
@@ -998,13 +1071,16 @@
                 if (!categories[finalCategoryName]) {
                     categories[finalCategoryName] = {};
                 }
-                if (categories[finalCategoryName][finalAlbumName]) {
+                if (albumName === 'new' && categories[finalCategoryName][finalAlbumName]) {
                      alert(`El álbum "${finalAlbumName}" ya existe en la categoría "${finalCategoryName}".`);
                      return;
                 }
                 
-                categories[finalCategoryName][finalAlbumName] = { photos: [], createdAt: new Date().toISOString() };
-                categories[finalCategoryName][finalAlbumName].photos.push(...selectedPhotos);
+                if (!categories[finalCategoryName][finalAlbumName]) {
+                    categories[finalCategoryName][finalAlbumName] = { photos: [], createdAt: new Date().toISOString() };
+                }
+                
+                categories[finalCategoryName][finalAlbumName].photos.push(...photosToSave);
                 localStorage.setItem('photoCategories', JSON.stringify(categories));
                 closeAlbumSelectModal();
                 displayCategories();
@@ -1040,8 +1116,8 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const albumData = categories[currentEditingAlbum.categoryName][currentEditingAlbum.albumName];
-                        if (albumData.photos[0] !== e.target.result) {
-                            albumData.photos.unshift(e.target.result);
+                        if (albumData.photos[0] && albumData.photos[0].src !== e.target.result) {
+                            albumData.photos.unshift({ src: e.target.result, name: "Portada" });
                         }
                         localStorage.setItem('photoCategories', JSON.stringify(categories));
                         displayCategories();
@@ -1118,6 +1194,10 @@
                 alert(`¡Foto movida a "${category}" > "${targetAlbumName}"!`);
             });
 
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                searchPhotos(e.target.value);
+            });
+
             // Close dropdowns on outside click
             document.addEventListener('click', closeAllDropdowns);
             
@@ -1127,6 +1207,13 @@
                     if (e.target === modal) modal.style.display = 'none';
                 });
             });
+            
+            // Initial data load
+            if (Object.keys(categories).length === 0) {
+                categories = initializeCategories();
+            }
+            displayCategories();
+            setupUploadArea();
         });
     </script>
 </body>
