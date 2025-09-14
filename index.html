@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Álbumes</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWlzIMOBbGJ1bWVzIiwic2hvcnRfbmFtZSI6IkFsYnVtcyIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMTExODI3IiwidGhlbWVfY29sb3IiOiIjMzMzIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1qUWlJR2hsYVdkb2REMGlNalFpSUhacFpYZENiM2c5SWpBZ01DQXlOQ0F5TkNJK1BISmxZM1FnZUQwaU1pSWdlVDBpTWlJZ2QybGtkR2c5SWpJd0lpQm9aV2xuYUhROUlqSXdJaUJ5ZUQwaUlpSWdabWxzYkQwaUkwWkdSaUlpTHo0OEwzTjJaejQ9Iiwic2l6ZXMiOiIyNHgyNCIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTWlzIMOBbGJ1bWVzIiwic2hvcnRfbmFtZSI6IkFsYnVtcyIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMTExODI3IiwidGhlbWVfY29sb3IiOiIjMzMzIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1qUWlJR2hsYVdkb2REMGlNalFpSUhacFpYZENiM2c5SWpBZ01DQXlOQ0F5TkNJK1BISmxZM1FnZUQwaU1pSWdlVDBpTWlJZ2QybGtkR2c5SWpJd0lpQm9aV2xuYUhROUlqSXdJaUJ5ZUQwaU1pSWdabWxzYkQwaUkwWkdSaUlpTHo0OEwzTjJaejQ9Iiwic2l6ZXMiOiIyNHgyNCIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
     <meta name="theme-color" content="#333">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -48,8 +49,87 @@
             color: white;
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Área de carga de fotos */
+        .upload-area {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 3px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 25px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover, .upload-area.drag-over {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.02);
+            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.1);
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-area:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .upload-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .upload-text {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-input {
+            display: none;
         }
 
         .button-group {
@@ -60,8 +140,8 @@
             margin-bottom: 30px;
         }
 
-        .add-album-btn, .view-all-btn {
-            background: rgba(255, 255, 255, 0.2);
+        .view-all-btn {
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -77,14 +157,10 @@
             text-decoration: none;
         }
 
-        .add-album-btn:hover, .view-all-btn:hover {
+        .view-all-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 40px rgba(0,0,0,0.2);
             background: rgba(255, 255, 255, 0.3);
-        }
-
-        .view-all-btn {
-            background: rgba(255, 255, 255, 0.15);
         }
 
         .alphabet-nav {
@@ -201,31 +277,6 @@
             margin-bottom: 4px;
         }
 
-        .add-photos-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: white;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-
-        .add-photos-btn:hover {
-            background: rgba(255, 255, 255, 0.5);
-            transform: scale(1.1);
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -289,7 +340,7 @@
             font-weight: 500;
         }
 
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 15px;
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -300,7 +351,7 @@
             transition: all 0.3s ease;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: rgba(255, 255, 255, 0.6);
             background: rgba(255, 255, 255, 0.15);
@@ -309,6 +360,11 @@
 
         .form-group input::placeholder {
             color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group select option {
+            background: #333;
+            color: white;
         }
 
         .modal-buttons {
@@ -384,6 +440,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            border: none;
         }
 
         .back-btn:hover {
@@ -437,6 +494,7 @@
             cursor: grab;
             transition: transform 0.3s ease;
             border-radius: 10px;
+            user-select: none;
         }
 
         .viewer-image:active {
@@ -525,6 +583,53 @@
             font-weight: 500;
         }
 
+        /* Preview de fotos seleccionadas */
+        .photo-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-photo:hover {
+            background: rgba(255, 0, 0, 1);
+            transform: scale(1.1);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -532,6 +637,20 @@
             
             .header h1 {
                 font-size: 2rem;
+            }
+            
+            .upload-area {
+                padding: 30px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .upload-icon {
+                font-size: 3rem;
+                margin-bottom: 15px;
+            }
+            
+            .upload-text {
+                font-size: 1.1rem;
             }
             
             .albums-grid {
@@ -552,7 +671,7 @@
                 align-items: center;
             }
 
-            .add-album-btn, .view-all-btn {
+            .view-all-btn {
                 width: 100%;
                 max-width: 300px;
                 justify-content: center;
@@ -564,10 +683,21 @@
     <div class="container">
         <div class="header">
             <h1>📸 Mis Álbumes</h1>
+            
+            <!-- Área de carga de fotos -->
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-content">
+                    <span class="upload-icon">📷</span>
+                    <div class="upload-text">Cargar Fotos</div>
+                    <div class="upload-subtext">
+                        Toca aquí o arrastra tus fotos<br>
+                        También puedes pegar desde el portapapeles (Ctrl+V)
+                    </div>
+                </div>
+                <input type="file" id="photoInput" class="upload-input" multiple accept="image/*">
+            </div>
+
             <div class="button-group">
-                <button class="add-album-btn" onclick="openModal()">
-                    ➕ Crear Álbum
-                </button>
                 <button class="view-all-btn" onclick="viewAllPhotos()">
                     🖼️ Ver Todas las Fotos
                 </button>
@@ -585,7 +715,7 @@
 
             <div class="empty-state" id="emptyState" style="display: none;">
                 <div class="pulse">📷</div>
-                <p>No hay álbumes aún. ¡Crea tu primer álbum!</p>
+                <p>No hay álbumes aún. ¡Carga tu primera foto!</p>
             </div>
         </div>
 
@@ -599,40 +729,26 @@
         </div>
     </div>
 
-    <!-- Modal para crear álbum -->
-    <div class="modal" id="albumModal">
+    <!-- Modal para seleccionar álbum -->
+    <div class="modal" id="albumSelectModal">
         <div class="modal-content">
-            <h2>Crear Nuevo Álbum</h2>
-            <form id="albumForm">
+            <h2>Seleccionar Álbum</h2>
+            <div class="photo-preview" id="photoPreview"></div>
+            <form id="albumSelectForm">
                 <div class="form-group">
-                    <label for="albumName">Nombre del Álbum</label>
-                    <input type="text" id="albumName" placeholder="Ej: Vacaciones 2024" required>
+                    <label for="albumSelect">Álbum de destino</label>
+                    <select id="albumSelect" required>
+                        <option value="">Selecciona un álbum...</option>
+                        <option value="new">➕ Crear nuevo álbum</option>
+                    </select>
                 </div>
-                <div class="form-group">
-                    <label for="albumPhotos">Seleccionar Fotos (Opcional)</label>
-                    <input type="file" id="albumPhotos" multiple accept="image/*">
+                <div class="form-group" id="newAlbumGroup" style="display: none;">
+                    <label for="newAlbumName">Nombre del nuevo álbum</label>
+                    <input type="text" id="newAlbumName" placeholder="Ej: Vacaciones 2024">
                 </div>
                 <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Crear Álbum</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal para agregar fotos a álbum existente -->
-    <div class="modal" id="addPhotosModal">
-        <div class="modal-content">
-            <h2>Agregar Fotos</h2>
-            <p id="addPhotosAlbumName" style="color: rgba(255,255,255,0.8); text-align: center; margin-bottom: 20px;"></p>
-            <form id="addPhotosForm">
-                <div class="form-group">
-                    <label for="newPhotos">Seleccionar Fotos</label>
-                    <input type="file" id="newPhotos" multiple accept="image/*" required>
-                </div>
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeAddPhotosModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Agregar Fotos</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAlbumSelectModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Fotos</button>
                 </div>
             </form>
         </div>
@@ -668,9 +784,10 @@
         let albums = JSON.parse(localStorage.getItem('photoAlbums')) || {};
         let currentFilter = 'all';
         let currentZoom = 1;
-        let currentAlbumForPhotos = null;
+        let currentX = 0, currentY = 0;
         let isDragging = false;
-        let startX, startY, currentX = 0, currentY = 0;
+        let startX, startY;
+        let selectedPhotos = [];
 
         // Generar navegación alfabética con "Famosas"
         function generateAlphabet() {
@@ -702,125 +819,40 @@
             });
         }
 
-        // Filtrar álbumes por letra
-        function filterAlbums(letter) {
-            currentFilter = letter;
-            
-            // Actualizar botones activos
-            document.querySelectorAll('.letter-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if ((letter === 'all' && btn.textContent === 'TODO') || 
-                    btn.textContent === letter) {
-                    btn.classList.add('active');
+        // Configurar área de carga
+        function setupUploadArea() {
+            const uploadArea = document.getElementById('uploadArea');
+            const photoInput = document.getElementById('photoInput');
+
+            // Click para seleccionar archivos
+            uploadArea.addEventListener('click', () => photoInput.click());
+
+            // Cambio en input de archivos
+            photoInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFiles(files);
                 }
             });
 
-            displayAlbums();
-        }
-
-        // Mostrar álbumes
-        function displayAlbums() {
-            const grid = document.getElementById('albumsGrid');
-            const emptyState = document.getElementById('emptyState');
-            grid.innerHTML = '';
-
-            const filteredAlbums = Object.entries(albums).filter(([name]) => {
-                if (currentFilter === 'all') return true;
-                if (currentFilter === 'FAMOSAS') return name.toLowerCase().includes('famosa');
-                return name.charAt(0).toUpperCase() === currentFilter;
-            });
-
-            if (filteredAlbums.length === 0) {
-                emptyState.style.display = 'block';
-                grid.style.display = 'none';
-            } else {
-                emptyState.style.display = 'none';
-                grid.style.display = 'grid';
-
-                filteredAlbums.forEach(([name, album]) => {
-                    const card = createAlbumCard(name, album);
-                    grid.appendChild(card);
-                });
-            }
-        }
-
-        // Crear tarjeta de álbum con botón para agregar fotos
-        function createAlbumCard(name, album) {
-            const card = document.createElement('div');
-            card.className = 'album-card';
-            card.onclick = (e) => {
-                if (!e.target.classList.contains('add-photos-btn')) {
-                    viewAlbum(name, album);
-                }
-            };
-
-            const cover = album.photos.length > 0 ? 
-                `<img src="${album.photos[0]}" alt="Portada" class="album-cover">` :
-                `<div class="album-cover">📷</div>`;
-
-            card.innerHTML = `
-                ${cover}
-                <button class="add-photos-btn" onclick="openAddPhotosModal('${name}')" title="Agregar fotos">+</button>
-                <div class="album-info">
-                    <h3>${name}</h3>
-                    <p>${album.photos.length} fotos</p>
-                    <p>Creado: ${new Date(album.createdAt).toLocaleDateString()}</p>
-                </div>
-            `;
-
-            return card;
-        }
-
-        // Ver álbum
-        function viewAlbum(name, album) {
-            const modal = document.getElementById('viewModal');
-            const title = document.getElementById('albumTitle');
-            const photoGrid = document.getElementById('photoGrid');
-
-            title.textContent = name;
-            photoGrid.innerHTML = '';
-
-            album.photos.forEach((photo, index) => {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-item';
-                photoItem.innerHTML = `<img src="${photo}" alt="Foto del álbum">`;
-                photoItem.onclick = () => openImageViewer(photo);
-                photoGrid.appendChild(photoItem);
-            });
-
-            modal.style.display = 'block';
-        }
-
-        // Ver todas las fotos
-        function viewAllPhotos() {
-            const mainView = document.getElementById('mainView');
-            const allPhotosView = document.getElementById('allPhotosView');
-            const allPhotosGrid = document.getElementById('allPhotosGrid');
-
-            mainView.style.display = 'none';
-            allPhotosView.style.display = 'block';
-
-            allPhotosGrid.innerHTML = '';
-
-            Object.entries(albums).forEach(([albumName, album]) => {
-                album.photos.forEach(photo => {
-                    const photoContainer = document.createElement('div');
-                    photoContainer.className = 'photo-with-album';
-                    photoContainer.innerHTML = `
-                        <img src="${photo}" alt="Foto de ${albumName}">
-                        <div class="album-label">${albumName}</div>
-                    `;
-                    photoContainer.onclick = () => openImageViewer(photo);
-                    allPhotosGrid.appendChild(photoContainer);
-                });
-            });
-        }
-
-        // Volver a vista de álbumes
-        function backToAlbums() {
-            const mainView = document.getElementById('mainView');
-            const allPhotosView = document.getElementById('allPhotosView');
-
-            mainView.style.display = 'block';
-            allPhotosView.style.display = 'none';
-        }
+            // Pegar desde portapapeles
+            document.addEventListener('paste', (e) => {
+                const items = e.clipboardData.items;
+                const files = [];
+                
+                for (let i = 0; i < items.length;
