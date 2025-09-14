@@ -277,6 +277,63 @@
             margin-bottom: 4px;
         }
 
+        /* Menú contextual de álbum */
+        .album-menu {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+        }
+
+        .album-menu-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .album-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+
+        .album-menu-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 10px 0;
+            display: none;
+            min-width: 180px;
+            z-index: 20;
+        }
+
+        .album-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .album-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -394,77 +451,159 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+            color: white;
+        }
+
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
 
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+        /* Vista de álbum - Fotos grandes verticales */
+        .album-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1500;
+            overflow-y: auto;
         }
 
-        .photo-item {
+        .album-view-header {
+            position: sticky;
+            top: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .album-view-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .album-view-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .album-view-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .album-view-photos {
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .album-photo {
+            margin-bottom: 30px;
             position: relative;
-            aspect-ratio: 1;
             border-radius: 15px;
             overflow: hidden;
+        }
+
+        .album-photo img {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .album-photo:hover img {
+            transform: scale(1.02);
+        }
+
+        /* Menú de foto */
+        .photo-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .album-photo:hover .photo-menu {
+            opacity: 1;
+        }
+
+        .photo-menu-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .photo-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+
+        .photo-menu-dropdown {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 10px 0;
+            display: none;
+            min-width: 160px;
+            z-index: 30;
+        }
+
+        .photo-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            color: white;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .photo-menu-item:hover {
             background: rgba(255, 255, 255, 0.1);
         }
 
-        .photo-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        .photo-menu-item.danger:hover {
+            background: rgba(255, 71, 87, 0.2);
         }
 
-        .photo-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .back-btn {
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: none;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateX(-5px);
-        }
-
-        .empty-state {
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.1rem;
-            margin-top: 50px;
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Visor de imágenes con zoom */
+        /* Visor de imágenes mejorado */
         .image-viewer {
             display: none;
             position: fixed;
@@ -472,9 +611,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.98);
             z-index: 2000;
             animation: fadeIn 0.3s ease-out;
+            touch-action: manipulation;
         }
 
         .image-viewer-content {
@@ -491,10 +631,10 @@
             max-width: 100%;
             max-height: 90vh;
             object-fit: contain;
-            cursor: grab;
-            transition: transform 0.3s ease;
             border-radius: 10px;
             user-select: none;
+            transition: transform 0.3s ease;
+            cursor: grab;
         }
 
         .viewer-image:active {
@@ -513,9 +653,9 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: none;
             color: white;
             font-size: 1.2rem;
             cursor: pointer;
@@ -526,20 +666,40 @@
         }
 
         .viewer-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.9);
             transform: scale(1.1);
         }
 
-        .zoom-controls {
+        /* Navegación entre fotos */
+        .photo-nav {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 25px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-nav:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .photo-nav.prev {
+            left: 20px;
+        }
+
+        .photo-nav.next {
+            right: 20px;
         }
 
         .all-photos-view {
@@ -581,6 +741,43 @@
             padding: 20px 15px 10px;
             font-size: 0.9rem;
             font-weight: 500;
+        }
+
+        .back-btn {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            margin-top: 50px;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         /* Preview de fotos seleccionadas */
@@ -657,10 +854,6 @@
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
                 gap: 15px;
             }
-            
-            .photo-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            }
 
             .all-photos-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -676,6 +869,24 @@
                 max-width: 300px;
                 justify-content: center;
             }
+
+            .album-view-photos {
+                padding: 10px;
+            }
+
+            .photo-nav {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .photo-nav.prev {
+                left: 10px;
+            }
+
+            .photo-nav.next {
+                right: 10px;
+            }
         }
     </style>
 </head>
@@ -684,7 +895,6 @@
         <div class="header">
             <h1>📸 Mis Álbumes</h1>
             
-            <!-- Área de carga de fotos -->
             <div class="upload-area" id="uploadArea">
                 <div class="upload-content">
                     <span class="upload-icon">📷</span>
@@ -706,12 +916,10 @@
 
         <div class="main-view" id="mainView">
             <div class="alphabet-nav" id="alphabetNav">
-                <!-- Se generará dinámicamente -->
-            </div>
+                </div>
 
             <div class="albums-grid" id="albumsGrid">
-                <!-- Los álbumes se mostrarán aquí -->
-            </div>
+                </div>
 
             <div class="empty-state" id="emptyState" style="display: none;">
                 <div class="pulse">📷</div>
@@ -719,17 +927,23 @@
             </div>
         </div>
 
-        <!-- Vista de todas las fotos -->
         <div class="all-photos-view" id="allPhotosView">
             <button class="back-btn" onclick="backToAlbums()">← Volver a Álbumes</button>
             <h2 style="color: white; text-align: center; margin-bottom: 20px;">🖼️ Todas mis Fotos</h2>
             <div class="all-photos-grid" id="allPhotosGrid">
-                <!-- Todas las fotos se mostrarán aquí -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Modal para seleccionar álbum -->
+    <div class="album-view" id="albumView">
+        <div class="album-view-header">
+            <h2 class="album-view-title" id="albumViewTitle"></h2>
+            <button class="album-view-close" onclick="closeAlbumView()">×</button>
+        </div>
+        <div class="album-view-photos" id="albumViewPhotos">
+            </div>
+    </div>
+
     <div class="modal" id="albumSelectModal">
         <div class="modal-content">
             <h2>Seleccionar Álbum</h2>
@@ -754,29 +968,59 @@
         </div>
     </div>
 
-    <!-- Modal para ver álbum -->
-    <div class="modal" id="viewModal">
-        <div class="modal-content" style="max-width: 90%; width: 800px;">
-            <button class="back-btn" onclick="closeViewModal()">← Volver</button>
-            <h2 id="albumTitle"></h2>
-            <div class="photo-grid" id="photoGrid">
-                <!-- Las fotos se mostrarán aquí -->
-            </div>
+    <div class="modal" id="editAlbumModal">
+        <div class="modal-content">
+            <h2>Editar Álbum</h2>
+            <form id="editAlbumForm">
+                <div class="form-group">
+                    <label for="editAlbumName">Nombre del álbum</label>
+                    <input type="text" id="editAlbumName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editAlbumCover">Cambiar foto de portada</label>
+                    <input type="file" id="editAlbumCover" accept="image/*">
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditAlbumModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Visor de imágenes con zoom -->
+    <div class="modal" id="movePhotoModal">
+        <div class="modal-content">
+            <h2>Mover Foto</h2>
+            <form id="movePhotoForm">
+                <div class="form-group">
+                    <label for="moveToAlbum">Mover a álbum:</label>
+                    <select id="moveToAlbum" required>
+                        <option value="">Selecciona un álbum...</option>
+                        <option value="new">➕ Crear nuevo álbum</option>
+                    </select>
+                </div>
+                <div class="form-group" id="moveNewAlbumGroup" style="display: none;">
+                    <label for="moveNewAlbumName">Nombre del nuevo álbum</label>
+                    <input type="text" id="moveNewAlbumName" placeholder="Ej: Nuevo Álbum">
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeMovePhotoModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Mover Foto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="image-viewer" id="imageViewer">
         <div class="viewer-controls">
-            <button class="viewer-btn" onclick="closeImageViewer()">✕</button>
+            <button class="viewer-btn" onclick="closeImageViewer()">×</button>
         </div>
+        
+        <button class="photo-nav prev" id="prevPhoto" onclick="navigatePhoto(-1)">‹</button>
+        <button class="photo-nav next" id="nextPhoto" onclick="navigatePhoto(1)">›</button>
+        
         <div class="image-viewer-content">
             <img class="viewer-image" id="viewerImage" alt="Imagen ampliada">
-            <div class="zoom-controls">
-                <button class="viewer-btn" onclick="zoomOut()">−</button>
-                <button class="viewer-btn" onclick="resetZoom()">⌂</button>
-                <button class="viewer-btn" onclick="zoomIn()">+</button>
-            </div>
         </div>
     </div>
 
@@ -788,6 +1032,11 @@
         let isDragging = false;
         let startX, startY;
         let selectedPhotos = [];
+        let currentAlbumName = '';
+        let currentPhotoIndex = 0;
+        let currentPhotosArray = [];
+        let currentEditingAlbum = '';
+        let currentPhotoToMove = { albumName: '', photoIndex: -1 };
 
         // Generar navegación alfabética con "Famosas"
         function generateAlphabet() {
@@ -984,11 +1233,15 @@
             }
         }
 
-        // Crear tarjeta de álbum
+        // Crear tarjeta de álbum con menú contextual
         function createAlbumCard(name, album) {
             const card = document.createElement('div');
             card.className = 'album-card';
-            card.onclick = () => viewAlbum(name, album);
+            card.onclick = (e) => {
+                if (!e.target.closest('.album-menu')) {
+                    viewAlbum(name, album);
+                }
+            };
 
             const cover = album.photos.length > 0 ? 
                 `<img src="${album.photos[0]}" alt="Portada" class="album-cover">` :
@@ -996,6 +1249,17 @@
 
             card.innerHTML = `
                 ${cover}
+                <div class="album-menu">
+                    <button class="album-menu-btn" onclick="toggleAlbumMenu(event, '${name}')">⋮</button>
+                    <div class="album-menu-dropdown" id="menu-${name.replace(/[^a-zA-Z0-9]/g, '')}">
+                        <div class="album-menu-item" onclick="editAlbum('${name}')">
+                            ✏️ Editar álbum
+                        </div>
+                        <div class="album-menu-item" onclick="deleteAlbum('${name}')">
+                            🗑️ Eliminar álbum
+                        </div>
+                    </div>
+                </div>
                 <div class="album-info">
                     <h3>${name}</h3>
                     <p>${album.photos.length} fotos</p>
@@ -1006,24 +1270,150 @@
             return card;
         }
 
-        // Ver álbum
+        // Toggle menú de álbum
+        function toggleAlbumMenu(event, albumName) {
+            event.stopPropagation();
+            
+            // Cerrar todos los menús
+            document.querySelectorAll('.album-menu-dropdown').forEach(menu => {
+                menu.style.display = 'none';
+            });
+            
+            // Abrir el menú correspondiente
+            const menuId = 'menu-' + albumName.replace(/[^a-zA-Z0-9]/g, '');
+            const menu = document.getElementById(menuId);
+            if (menu) {
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        // Editar álbum
+        function editAlbum(albumName) {
+            currentEditingAlbum = albumName;
+            const modal = document.getElementById('editAlbumModal');
+            const nameInput = document.getElementById('editAlbumName');
+            
+            nameInput.value = albumName;
+            modal.style.display = 'block';
+            
+            // Cerrar menús
+            document.querySelectorAll('.album-menu-dropdown').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        }
+
+        // Eliminar álbum
+        function deleteAlbum(albumName) {
+            if (confirm(`¿Estás seguro de que quieres eliminar el álbum "${albumName}" y todas sus fotos?`)) {
+                delete albums[albumName];
+                localStorage.setItem('photoAlbums', JSON.stringify(albums));
+                displayAlbums();
+            }
+            
+            // Cerrar menús
+            document.querySelectorAll('.album-menu-dropdown').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        }
+
+        // Ver álbum con fotos grandes
         function viewAlbum(name, album) {
-            const modal = document.getElementById('viewModal');
-            const title = document.getElementById('albumTitle');
-            const photoGrid = document.getElementById('photoGrid');
+            currentAlbumName = name;
+            currentPhotosArray = album.photos;
+            
+            const albumView = document.getElementById('albumView');
+            const title = document.getElementById('albumViewTitle');
+            const photosContainer = document.getElementById('albumViewPhotos');
 
             title.textContent = name;
-            photoGrid.innerHTML = '';
+            photosContainer.innerHTML = '';
 
             album.photos.forEach((photo, index) => {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-item';
-                photoItem.innerHTML = `<img src="${photo}" alt="Foto del álbum">`;
-                photoItem.onclick = () => openImageViewer(photo);
-                photoGrid.appendChild(photoItem);
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'album-photo';
+                photoDiv.innerHTML = `
+                    <img src="${photo}" alt="Foto ${index + 1}" onclick="openImageViewer('${photo}', ${index})">
+                    <div class="photo-menu">
+                        <button class="photo-menu-btn" onclick="togglePhotoMenu(event, ${index})">⋮</button>
+                        <div class="photo-menu-dropdown" id="photomenu-${index}">
+                            <div class="photo-menu-item" onclick="movePhoto('${name}', ${index})">
+                                📁 Mover a otro álbum
+                            </div>
+                            <div class="photo-menu-item danger" onclick="deletePhoto('${name}', ${index})">
+                                🗑️ Eliminar foto
+                            </div>
+                        </div>
+                    </div>
+                `;
+                photosContainer.appendChild(photoDiv);
             });
 
+            albumView.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Toggle menú de foto
+        function togglePhotoMenu(event, photoIndex) {
+            event.stopPropagation();
+            
+            // Cerrar todos los menús de fotos
+            document.querySelectorAll('.photo-menu-dropdown').forEach(menu => {
+                menu.style.display = 'none';
+            });
+            
+            // Abrir el menú correspondiente
+            const menu = document.getElementById(`photomenu-${photoIndex}`);
+            if (menu) {
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        // Mover foto a otro álbum
+        function movePhoto(albumName, photoIndex) {
+            currentPhotoToMove = { albumName, photoIndex };
+            
+            const modal = document.getElementById('movePhotoModal');
+            const albumSelect = document.getElementById('moveToAlbum');
+            
+            // Llenar opciones de álbumes (excluyendo el actual)
+            albumSelect.innerHTML = '<option value="">Selecciona un álbum...</option>';
+            albumSelect.innerHTML += '<option value="new">➕ Crear nuevo álbum</option>';
+            
+            Object.keys(albums).forEach(name => {
+                if (name !== albumName) {
+                    albumSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            });
+            
             modal.style.display = 'block';
+            
+            // Cerrar menús
+            document.querySelectorAll('.photo-menu-dropdown').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        }
+
+        // Eliminar foto
+        function deletePhoto(albumName, photoIndex) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta foto?')) {
+                albums[albumName].photos.splice(photoIndex, 1);
+                localStorage.setItem('photoAlbums', JSON.stringify(albums));
+                
+                // Actualizar vista del álbum
+                viewAlbum(albumName, albums[albumName]);
+                displayAlbums(); // Actualizar grid principal
+            }
+            
+            // Cerrar menús
+            document.querySelectorAll('.photo-menu-dropdown').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        }
+
+        // Cerrar vista de álbum
+        function closeAlbumView() {
+            document.getElementById('albumView').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         // Ver todas las fotos
@@ -1037,15 +1427,33 @@
 
             allPhotosGrid.innerHTML = '';
 
+            const allPhotos = [];
             Object.entries(albums).forEach(([albumName, album]) => {
-                album.photos.forEach(photo => {
+                album.photos.forEach((photo, index) => {
                     const photoContainer = document.createElement('div');
                     photoContainer.className = 'photo-with-album';
                     photoContainer.innerHTML = `
                         <img src="${photo}" alt="Foto de ${albumName}">
                         <div class="album-label">${albumName}</div>
                     `;
-                    photoContainer.onclick = () => openImageViewer(photo);
+                    photoContainer.onclick = () => {
+                        // Crear array con todas las fotos para navegación
+                        let currentIndex = 0;
+                        let targetIndex = 0;
+                        
+                        Object.entries(albums).forEach(([name, albumData]) => {
+                            albumData.photos.forEach((p, i) => {
+                                if (name === albumName && i === index) {
+                                    targetIndex = currentIndex;
+                                }
+                                allPhotos.push(p);
+                                currentIndex++;
+                            });
+                        });
+                        
+                        currentPhotosArray = allPhotos;
+                        openImageViewer(photo, targetIndex);
+                    };
                     allPhotosGrid.appendChild(photoContainer);
                 });
             });
@@ -1060,176 +1468,259 @@
             allPhotosView.style.display = 'none';
         }
 
-        // Cerrar modal de ver álbum
-        function closeViewModal() {
-            document.getElementById('viewModal').style.display = 'none';
-        }
-
-        // Abrir visor de imágenes
-        function openImageViewer(imageSrc) {
+        // Abrir visor de imágenes con navegación
+        function openImageViewer(imageSrc, photoIndex = 0) {
             const viewer = document.getElementById('imageViewer');
             const viewerImage = document.getElementById('viewerImage');
             
+            currentPhotoIndex = photoIndex;
             viewerImage.src = imageSrc;
             viewer.style.display = 'block';
-            resetZoom();
+            document.body.style.overflow = 'hidden';
             
-            // Configurar eventos de arrastre para zoom
-            setupImageDragging();
+            updateNavigationButtons();
+            setupImageZoom();
+        }
+
+        // Navegar entre fotos
+        function navigatePhoto(direction) {
+            if (currentPhotosArray.length === 0) return;
+            
+            currentPhotoIndex += direction;
+            
+            if (currentPhotoIndex < 0) {
+                currentPhotoIndex = currentPhotosArray.length - 1;
+            } else if (currentPhotoIndex >= currentPhotosArray.length) {
+                currentPhotoIndex = 0;
+            }
+            
+            const viewerImage = document.getElementById('viewerImage');
+            viewerImage.src = currentPhotosArray[currentPhotoIndex];
+            
+            updateNavigationButtons();
+        }
+
+        // Actualizar botones de navegación
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevPhoto');
+            const nextBtn = document.getElementById('nextPhoto');
+            
+            if (currentPhotosArray.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+                nextBtn.style.display = 'block';
+            }
+        }
+
+        // Configurar zoom nativo
+        function setupImageZoom() {
+            const viewerImage = document.getElementById('viewerImage');
+            
+            // Zoom con doble click (desktop)
+            viewerImage.addEventListener('dblclick', () => {
+                if (viewerImage.style.transform.includes('scale')) {
+                    viewerImage.style.transform = '';
+                    viewerImage.style.cursor = 'grab';
+                } else {
+                    viewerImage.style.transform = 'scale(2)';
+                    viewerImage.style.cursor = 'grab';
+                }
+            });
+            
+            // En móviles, el zoom con pinch funciona nativamente
+            // Solo necesitamos permitir el touch-action
+            viewerImage.style.touchAction = 'pinch-zoom';
         }
 
         // Cerrar visor de imágenes
         function closeImageViewer() {
             document.getElementById('imageViewer').style.display = 'none';
-            currentZoom = 1;
-            currentX = 0;
-            currentY = 0;
-        }
-
-        // Configurar arrastre de imagen
-        function setupImageDragging() {
+            document.body.style.overflow = 'auto';
+            
+            // Reset zoom
             const viewerImage = document.getElementById('viewerImage');
-            
-            viewerImage.onmousedown = startDrag;
-            viewerImage.onmousemove = drag;
-            viewerImage.onmouseup = endDrag;
-            viewerImage.onmouseleave = endDrag;
-            
-            // Touch events para móvil
-            viewerImage.ontouchstart = (e) => startDrag(e.touches[0]);
-            viewerImage.ontouchmove = (e) => {
-                e.preventDefault();
-                drag(e.touches[0]);
-            };
-            viewerImage.ontouchend = endDrag;
+            viewerImage.style.transform = '';
         }
 
-        function startDrag(e) {
-            if (currentZoom <= 1) return;
-            isDragging = true;
-            startX = e.clientX - currentX;
-            startY = e.clientY - currentY;
+        // Cerrar modal de edición
+        function closeEditAlbumModal() {
+            document.getElementById('editAlbumModal').style.display = 'none';
+            currentEditingAlbum = '';
         }
 
-        function drag(e) {
-            if (!isDragging || currentZoom <= 1) return;
-            currentX = e.clientX - startX;
-            currentY = e.clientY - startY;
-            updateImageTransform();
+        // Cerrar modal de mover foto
+        function closeMovePhotoModal() {
+            document.getElementById('movePhotoModal').style.display = 'none';
+            currentPhotoToMove = { albumName: '', photoIndex: -1 };
         }
 
-        function endDrag() {
-            isDragging = false;
-        }
-
-        // Funciones de zoom
-        function zoomIn() {
-            currentZoom = Math.min(currentZoom * 1.5, 5);
-            updateImageTransform();
-        }
-
-        function zoomOut() {
-            currentZoom = Math.max(currentZoom / 1.5, 1);
-            if (currentZoom === 1) {
-                currentX = 0;
-                currentY = 0;
-            }
-            updateImageTransform();
-        }
-
-        function resetZoom() {
-            currentZoom = 1;
-            currentX = 0;
-            currentY = 0;
-            updateImageTransform();
-        }
-
-        function updateImageTransform() {
-            const viewerImage = document.getElementById('viewerImage');
-            viewerImage.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentZoom})`;
-        }
-
-        // Manejar formulario de selección de álbum
-        document.getElementById('albumSelectForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const albumSelect = document.getElementById('albumSelect').value;
-            const newAlbumName = document.getElementById('newAlbumName').value.trim();
-            
-            if (!albumSelect) return;
-            
-            let targetAlbum;
-            
-            if (albumSelect === 'new') {
-                if (!newAlbumName) {
-                    alert('Por favor, ingresa el nombre del nuevo álbum');
-                    return;
-                }
-                targetAlbum = newAlbumName;
-                
-                // Crear nuevo álbum si no existe
-                if (!albums[targetAlbum]) {
-                    albums[targetAlbum] = {
-                        photos: [],
-                        createdAt: new Date().toISOString()
-                    };
-                }
-            } else {
-                targetAlbum = albumSelect;
-            }
-            
-            // Agregar fotos al álbum
-            albums[targetAlbum].photos.push(...selectedPhotos);
-            
-            // Guardar en localStorage
-            localStorage.setItem('photoAlbums', JSON.stringify(albums));
-            
-            // Cerrar modal y actualizar vista
-            closeAlbumSelectModal();
-            displayAlbums();
-            
-            // Mostrar mensaje de éxito
-            alert(`¡${selectedPhotos.length} foto(s) agregada(s) al álbum "${targetAlbum}"!`);
-        });
-
-        // Mostrar/ocultar campo de nuevo álbum
-        document.getElementById('albumSelect').addEventListener('change', function() {
-            const newAlbumGroup = document.getElementById('newAlbumGroup');
-            if (this.value === 'new') {
-                newAlbumGroup.style.display = 'block';
-                document.getElementById('newAlbumName').focus();
-            } else {
-                newAlbumGroup.style.display = 'none';
-            }
-        });
-
-        // Cerrar modales al hacer click fuera
-        window.addEventListener('click', function(e) {
-            const albumSelectModal = document.getElementById('albumSelectModal');
-            const viewModal = document.getElementById('viewModal');
-            const imageViewer = document.getElementById('imageViewer');
-            
-            if (e.target === albumSelectModal) {
-                closeAlbumSelectModal();
-            }
-            if (e.target === viewModal) {
-                closeViewModal();
-            }
-            if (e.target === imageViewer) {
-                closeImageViewer();
-            }
-        });
-
-        // Inicializar app
+        // Event listeners para formularios
         document.addEventListener('DOMContentLoaded', function() {
             generateAlphabet();
             setupUploadArea();
             displayAlbums();
             
-            console.log('📱 App de Álbumes iniciada correctamente');
-            console.log('✅ Funciona completamente offline');
-            console.log('✅ Las fotos se guardan en calidad original');
-            console.log('✅ Zoom y arrastre disponibles');
+            // Formulario de selección de álbum
+            document.getElementById('albumSelectForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const albumSelect = document.getElementById('albumSelect').value;
+                const newAlbumName = document.getElementById('newAlbumName').value.trim();
+                
+                if (!albumSelect) return;
+                
+                let targetAlbum;
+                
+                if (albumSelect === 'new') {
+                    if (!newAlbumName) {
+                        alert('Por favor, ingresa el nombre del nuevo álbum');
+                        return;
+                    }
+                    targetAlbum = newAlbumName;
+                    
+                    if (!albums[targetAlbum]) {
+                        albums[targetAlbum] = {
+                            photos: [],
+                            createdAt: new Date().toISOString()
+                        };
+                    }
+                } else {
+                    targetAlbum = albumSelect;
+                }
+                
+                albums[targetAlbum].photos.push(...selectedPhotos);
+                localStorage.setItem('photoAlbums', JSON.stringify(albums));
+                
+                closeAlbumSelectModal();
+                displayAlbums();
+                
+                alert(`¡${selectedPhotos.length} foto(s) agregada(s) al álbum "${targetAlbum}"!`);
+            });
+
+            // Formulario de edición de álbum
+            document.getElementById('editAlbumForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const newName = document.getElementById('editAlbumName').value.trim();
+                const coverFile = document.getElementById('editAlbumCover').files[0];
+                
+                if (!newName) return;
+                
+                // Si cambió el nombre
+                if (newName !== currentEditingAlbum) {
+                    // Si el nuevo nombre ya existe, mergear o pedir otro nombre
+                    if (albums[newName]) {
+                        alert('Ya existe un álbum con ese nombre. Por favor, elige otro.');
+                        return;
+                    }
+                    albums[newName] = albums[currentEditingAlbum];
+                    delete albums[currentEditingAlbum];
+                    currentEditingAlbum = newName;
+                }
+                
+                // Si hay nueva foto de portada
+                if (coverFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Poner la nueva foto como primera
+                        albums[currentEditingAlbum].photos.unshift(e.target.result);
+                        localStorage.setItem('photoAlbums', JSON.stringify(albums));
+                        displayAlbums();
+                        closeEditAlbumModal();
+                    };
+                    reader.readAsDataURL(coverFile);
+                } else {
+                    localStorage.setItem('photoAlbums', JSON.stringify(albums));
+                    displayAlbums();
+                    closeEditAlbumModal();
+                }
+            });
+
+            // Formulario de mover foto
+            document.getElementById('movePhotoForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const targetAlbum = document.getElementById('moveToAlbum').value;
+                const newAlbumName = document.getElementById('moveNewAlbumName').value.trim();
+                
+                if (!targetAlbum) return;
+                
+                const photo = albums[currentPhotoToMove.albumName].photos[currentPhotoToMove.photoIndex];
+                
+                // Remover de álbum actual
+                albums[currentPhotoToMove.albumName].photos.splice(currentPhotoToMove.photoIndex, 1);
+                
+                // Agregar a álbum destino
+                let destinationAlbumName;
+                if (targetAlbum === 'new') {
+                    if (!newAlbumName) {
+                        alert('Por favor, ingresa el nombre del nuevo álbum');
+                        return;
+                    }
+                    destinationAlbumName = newAlbumName;
+                    
+                    if (!albums[destinationAlbumName]) {
+                        albums[destinationAlbumName] = {
+                            photos: [],
+                            createdAt: new Date().toISOString()
+                        };
+                    }
+                    albums[destinationAlbumName].photos.push(photo);
+                } else {
+                    destinationAlbumName = targetAlbum;
+                    albums[destinationAlbumName].photos.push(photo);
+                }
+                
+                localStorage.setItem('photoAlbums', JSON.stringify(albums));
+                
+                // Actualizar vista
+                closeAlbumView();
+                displayAlbums();
+                closeMovePhotoModal();
+                
+                alert(`¡Foto movida al álbum "${destinationAlbumName}"!`);
+            });
+
+            // Show/hide campos de nuevo álbum
+            document.getElementById('albumSelect').addEventListener('change', function() {
+                const newAlbumGroup = document.getElementById('newAlbumGroup');
+                if (this.value === 'new') {
+                    newAlbumGroup.style.display = 'block';
+                    document.getElementById('newAlbumName').focus();
+                } else {
+                    newAlbumGroup.style.display = 'none';
+                }
+            });
+
+            document.getElementById('moveToAlbum').addEventListener('change', function() {
+                const moveNewAlbumGroup = document.getElementById('moveNewAlbumGroup');
+                if (this.value === 'new') {
+                    moveNewAlbumGroup.style.display = 'block';
+                    document.getElementById('moveNewAlbumName').focus();
+                } else {
+                    moveNewAlbumGroup.style.display = 'none';
+                }
+            });
+
+            // Cerrar menús al hacer click fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.album-menu') && !e.target.closest('.photo-menu')) {
+                    document.querySelectorAll('.album-menu-dropdown').forEach(menu => menu.style.display = 'none');
+                    document.querySelectorAll('.photo-menu-dropdown').forEach(menu => menu.style.display = 'none');
+                }
+            });
+
+            // Cerrar modals al hacer click fuera de su contenido
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
         });
     </script>
 </body>
