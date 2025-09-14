@@ -559,8 +559,11 @@
         <div class="modal-content">
             <h2>Guardar Fotos</h2>
             <form id="albumSelectForm">
-                <div id="photoForms">
-                    </div>
+                <div class="form-group" id="photoNameGroup">
+                    <label for="photoName">Nombre para las fotos</label>
+                    <input type="text" id="photoName" placeholder="Ej: Cumpleaños, Gatos, etc.">
+                </div>
+                <div class="photo-preview" id="photoPreview"></div>
                 <div class="form-group">
                     <label for="categorySelect">Categoría</label>
                     <select id="categorySelect" required>
@@ -822,20 +825,10 @@
         function showAlbumSelectModal() {
             const modal = document.getElementById('albumSelectModal');
             const categorySelect = document.getElementById('categorySelect');
-            const photoFormsContainer = document.getElementById('photoForms');
+            const photoPreview = document.getElementById('photoPreview');
             
-            photoFormsContainer.innerHTML = '';
-            selectedPhotos.forEach((photoSrc, index) => {
-                const photoNameFormGroup = document.createElement('div');
-                photoNameFormGroup.className = 'form-group';
-                photoNameFormGroup.innerHTML = `
-                    <label>Nombre para foto ${index + 1}:</label>
-                    <img src="${photoSrc}" style="width: 100%; max-width: 100px; display: block; margin-bottom: 10px; border-radius: 8px;">
-                    <input type="text" class="photo-name-input" data-index="${index}" placeholder="Ej: Cumpleaños, Gatos, etc." required>
-                `;
-                photoFormsContainer.appendChild(photoNameFormGroup);
-            });
-
+            photoPreview.innerHTML = selectedPhotos.map(src => `<div class="preview-item"><img src="${src}"></div>`).join('');
+            
             categorySelect.innerHTML = '<option value="">Selecciona una categoría...</option>';
             Object.keys(categories).sort().forEach(cat => categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`);
             
@@ -884,6 +877,7 @@
         function closeAlbumView() {
             document.getElementById('albumView').style.display = 'none';
             document.body.style.overflow = 'auto';
+            displayCategories();
         }
         
         function backToMainView() {
@@ -1070,24 +1064,9 @@
                 const categoryName = document.getElementById('categorySelect').value;
                 const albumName = document.getElementById('albumSelect').value;
                 const newAlbumName = document.getElementById('newAlbumName').value.trim();
-                
-                const photoNameInputs = document.querySelectorAll('.photo-name-input');
-                let photosToSave = [];
-                let hasEmptyName = false;
+                const photoName = document.getElementById('photoName').value.trim() || `Foto ${new Date().toLocaleString()}`;
 
-                photoNameInputs.forEach(input => {
-                    const index = parseInt(input.getAttribute('data-index'));
-                    const name = input.value.trim();
-                    if (name === '') {
-                        hasEmptyName = true;
-                    }
-                    photosToSave.push({ src: selectedPhotos[index], name: name || `Foto ${Date.now()}` });
-                });
-
-                if (hasEmptyName) {
-                    alert('Por favor, nombra todas las fotos.');
-                    return;
-                }
+                let photosToSave = selectedPhotos.map(src => ({ src, name: photoName }));
 
                 let finalCategoryName = categoryName;
                 if (categoryName === 'new') {
